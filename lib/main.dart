@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant_app/home/home_page.dart';
+import 'package:restaurant_app/styles.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,23 +14,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Restaurant App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        colorScheme: myColorSchemeLight,
+        textTheme: myTextTheme,
+      ),
+      darkTheme: ThemeData(
+        colorScheme: myColorSchemeDark,
+        textTheme: myTextTheme,
       ),
       home: const HomePage(),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-      ),
-      body: Container(),
     );
   }
 }
