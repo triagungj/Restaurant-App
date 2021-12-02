@@ -30,8 +30,11 @@ class RestaurantCard extends StatelessWidget {
                 padding: const EdgeInsets.all(10),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
-                  child: Image.network(restaurant.pictureId,
-                      fit: BoxFit.fill, height: 120),
+                  child: Hero(
+                    tag: restaurant.pictureId,
+                    child: Image.network(restaurant.pictureId,
+                        fit: BoxFit.fill, height: 120),
+                  ),
                 ),
               ),
             ),
