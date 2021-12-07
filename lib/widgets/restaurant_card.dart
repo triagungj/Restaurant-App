@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:restaurant_app/model/restaurant.dart';
+import 'package:restaurant_app/data/model/restaurant_result.dart';
 
 class RestaurantCard extends StatelessWidget {
   const RestaurantCard({Key? key, required this.restaurant}) : super(key: key);
@@ -31,9 +31,12 @@ class RestaurantCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
                   child: Hero(
-                    tag: restaurant.pictureId,
-                    child: Image.network(restaurant.pictureId,
-                        fit: BoxFit.fill, height: 120),
+                    tag: restaurant.pictureId!,
+                    child: Image.network(
+                      'https://restaurant-api.dicoding.dev/images/medium/${restaurant.pictureId!}',
+                      fit: BoxFit.fill,
+                      height: 120,
+                    ),
                   ),
                 ),
               ),
@@ -55,7 +58,7 @@ class RestaurantCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      restaurant.description,
+                      restaurant.description!,
                       style: Theme.of(context).textTheme.subtitle1,
                       maxLines: 2,
                     ),
@@ -71,7 +74,7 @@ class RestaurantCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 6),
                             Text(
-                              restaurant.city,
+                              restaurant.city!,
                               style: Theme.of(context).textTheme.subtitle2,
                             ),
                           ],

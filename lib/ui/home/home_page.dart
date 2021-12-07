@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:restaurant_app/detail/detail_page.dart';
-import 'package:restaurant_app/home/restaurant_card.dart';
-import 'package:restaurant_app/model/restaurant.dart';
+import 'package:restaurant_app/data/api/api_service.dart';
+import 'package:restaurant_app/data/model/restaurant_result.dart';
+import 'package:restaurant_app/ui/detail/detail_page.dart';
+import 'package:restaurant_app/widgets/restaurant_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -11,25 +12,58 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late Future<RestaurantsResult> _restaurants;
+
+  @override
+  void initState() {
+    super.initState();
+    _refresh();
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      _restaurants = ApiService().fetchRestaurants();
+    });
+  }
+
+  // Future<void> _search(String query) async {
+  //   setState(() {
+  //     _restaurants = ApiService().searchRestaurant(query);
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<String>(
-        future: DefaultAssetBundle.of(context)
-            .loadString('assets/local_restaurant.json'),
-        builder: (context, snapshot) {
-          final List<Restaurant> restaurants = parseRestaurants(snapshot.data);
-          return CustomScrollView(
-            slivers: <Widget>[
-              _sliverAppBar(),
-              SliverToBoxAdapter(
-                child: _searchField(),
-              ),
-              SliverList(
-                delegate: _sliverChildBuilderDelegate(restaurants),
-              ),
-            ],
-          );
+      body: FutureBuilder(
+        future: _restaurants,
+        builder: (context, AsyncSnapshot<RestaurantsResult> snapshot) {
+          var state = snapshot.connectionState;
+          if (state != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          } else {
+            if (snapshot.hasData) {
+              var restaurants = snapshot.data?.restaurants;
+              return RefreshIndicator(
+                onRefresh: _refresh,
+                child: CustomScrollView(
+                  slivers: <Widget>[
+                    _sliverAppBar(),
+                    SliverToBoxAdapter(
+                      child: _searchField(),
+                    ),
+                    SliverList(
+                      delegate: _sliverChildBuilderDelegate(restaurants!),
+                    ),
+                  ],
+                ),
+              );
+            } else if (snapshot.hasError) {
+              return Center(child: Text(snapshot.error.toString()));
+            } else {
+              return const Text('');
+            }
+          }
         },
       ),
     );
@@ -82,11 +116,13 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 flex: 7,
                 child: TextFormField(
+                  onChanged: (value) {},
                   decoration: const InputDecoration(
-                      prefixIcon: Icon(
-                        Icons.search,
-                      ),
-                      hintText: 'Search Restaurant'),
+                    prefixIcon: Icon(
+                      Icons.search,
+                    ),
+                    hintText: 'Search Restaurant',
+                  ),
                 ),
               ),
               const SizedBox(width: 20),
@@ -115,7 +151,7 @@ class _HomePageState extends State<HomePage> {
             context,
             MaterialPageRoute(
               builder: (BuildContext context) =>
-                  DetailPage(restaurant: restaurants[index]),
+                  DetailPage(restaurantId: restaurants[index].id),
             ),
           ),
           child: RestaurantCard(restaurant: restaurants[index]),
