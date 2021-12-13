@@ -27,12 +27,12 @@ class ApiService {
     }
   }
 
-  // Future<SearchRestaurantsResult> searchRestaurant(String _query) async {
-  //   final response = await http.get(Uri.parse(_baseUrl + 'search?q=' + _query));
-  //   if (response.statusCode == 200) {
-  //     return searchRestaurantsResultFromJson(json.decode(response.body));
-  //   } else {
-  //     throw Exception('Failed to load restaurants');
-  //   }
-  // }
+  Future<SearchRestaurantsResult> searchRestaurant(String _query) async {
+    final response = await http.get(Uri.parse(_baseUrl + 'search?q=' + _query));
+    if (response.statusCode == 200) {
+      return searchRestaurantsResultFromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load restaurants');
+    }
+  }
 }

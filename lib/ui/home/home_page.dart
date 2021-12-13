@@ -13,6 +13,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Future<RestaurantsResult> _restaurants;
+  late Future<SearchRestaurantsResult> _searchRestaurantsResult;
+  TextEditingController textSearchController = TextEditingController();
+  bool _onSearch = false;
 
   @override
   void initState() {
@@ -28,7 +31,7 @@ class _HomePageState extends State<HomePage> {
 
   // Future<void> _search(String query) async {
   //   setState(() {
-  //     _restaurants = ApiService().searchRestaurant(query);
+  //     _searchRestaurantsResult = ApiService().searchRestaurant(query);
   //   });
   // }
 
@@ -40,11 +43,16 @@ class _HomePageState extends State<HomePage> {
         builder: (context, AsyncSnapshot<RestaurantsResult> snapshot) {
           var state = snapshot.connectionState;
           if (state != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.onSecondary,
+              ),
+            );
           } else {
             if (snapshot.hasData) {
               var restaurants = snapshot.data?.restaurants;
               return RefreshIndicator(
+                color: Theme.of(context).colorScheme.onSecondary,
                 onRefresh: _refresh,
                 child: CustomScrollView(
                   slivers: <Widget>[
@@ -52,14 +60,24 @@ class _HomePageState extends State<HomePage> {
                     SliverToBoxAdapter(
                       child: _searchField(),
                     ),
-                    SliverList(
-                      delegate: _sliverChildBuilderDelegate(restaurants!),
-                    ),
+                    if (!_onSearch)
+                      SliverList(
+                        delegate: _sliverChildBuilderDelegate(restaurants!),
+                      ),
                   ],
                 ),
               );
             } else if (snapshot.hasError) {
-              return Center(child: Text(snapshot.error.toString()));
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('No Connection'),
+                    ElevatedButton(
+                        onPressed: _refresh, child: const Text('Try again'))
+                  ],
+                ),
+              );
             } else {
               return const Text('');
             }
@@ -116,7 +134,23 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 flex: 7,
                 child: TextFormField(
-                  onChanged: (value) {},
+                  controller: textSearchController,
+                  // onTap: () {
+                  //   setState(() {
+                  //     _onSearch = true;
+                  //   });
+                  // },
+                  onFieldSubmitted: (value) {},
+                  onChanged: (value) {
+                    setState(() {
+                      if (value == '') {
+                        _onSearch = false;
+                      } else {
+                        _onSearch = true;
+                      }
+                      // _onSearch = false;
+                    });
+                  },
                   decoration: const InputDecoration(
                     prefixIcon: Icon(
                       Icons.search,

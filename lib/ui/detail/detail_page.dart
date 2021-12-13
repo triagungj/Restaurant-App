@@ -65,10 +65,11 @@ class _DetailPageState extends State<DetailPage> {
                                   ],
                                 ),
                                 _detailDeskripsi(restaurant.description),
-                                // if (widget.restaurant.menu!.foods.isNotEmpty) _detailFood(),
-                                // const SizedBox(height: 18),
-                                // if (widget.restaurant.menu!.drinks.isNotEmpty)
-                                //   _detailDrinks(),
+                                if (restaurant.menus.foods.isNotEmpty)
+                                  _detailFood(restaurant.menus.foods),
+                                const SizedBox(height: 18),
+                                if (restaurant.menus.drinks.isNotEmpty)
+                                  _detailDrinks(restaurant.menus.drinks),
                               ],
                             ),
                           ),
@@ -96,13 +97,24 @@ class _DetailPageState extends State<DetailPage> {
             'https://restaurant-api.dicoding.dev/images/medium/$pictureId',
           ),
         ),
-        IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Theme.of(context).colorScheme.primary,
-            size: 32,
+        Padding(
+          padding: const EdgeInsets.all(4),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(50),
+              color: Colors.black12,
+            ),
+            height: 40,
+            width: 40,
+            child: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: Theme.of(context).colorScheme.primary,
+                // size: 32,
+              ),
+              onPressed: () => Navigator.pop(context),
+            ),
           ),
-          onPressed: () => Navigator.pop(context),
         ),
       ],
     );
@@ -170,81 +182,81 @@ class _DetailPageState extends State<DetailPage> {
     );
   }
 
-  // Widget _detailFood() {
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(vertical: 8),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Container(
-  //           decoration: BoxDecoration(
-  //             border: Border(
-  //               bottom: BorderSide(
-  //                 color: Theme.of(context).colorScheme.background,
-  //               ),
-  //             ),
-  //           ),
-  //           child: Text(
-  //             "Food",
-  //             style: Theme.of(context).textTheme.headline5,
-  //           ),
-  //         ),
-  //         Column(
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: List.generate(
-  //             widget.restaurant.menu!.foods.length,
-  //             (index) {
-  //               int number = index + 1;
-  //               return Padding(
-  //                 padding: const EdgeInsets.only(top: 16),
-  //                 child: Text(
-  //                   '$number. ${widget.restaurant.menu!.foods[index].name}',
-  //                 ),
-  //               );
-  //             },
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
+  Widget _detailFood(List<Category> foods) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).colorScheme.background,
+                ),
+              ),
+            ),
+            child: Text(
+              "Foods",
+              style: Theme.of(context).textTheme.headline5,
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: List.generate(
+              foods.length,
+              (index) {
+                int number = index + 1;
+                return Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text(
+                    '$number. ${foods[index].name}',
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-  // Widget _detailDrinks() {
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(vertical: 8),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Container(
-  //           decoration: BoxDecoration(
-  //             border: Border(
-  //               bottom: BorderSide(
-  //                 color: Theme.of(context).colorScheme.background,
-  //               ),
-  //             ),
-  //           ),
-  //           child: Text(
-  //             "Drinks",
-  //             style: Theme.of(context).textTheme.headline5,
-  //           ),
-  //         ),
-  //         Column(
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: List.generate(
-  //             widget.restaurant.menu!.drinks.length,
-  //             (index) {
-  //               int number = index + 1;
-  //               return Padding(
-  //                 padding: const EdgeInsets.only(top: 16),
-  //                 child: Text(
-  //                   '$number. ${widget.restaurant.menu!.drinks[index].name}',
-  //                 ),
-  //               );
-  //             },
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
+  Widget _detailDrinks(List<Category> drinks) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Theme.of(context).colorScheme.background,
+                ),
+              ),
+            ),
+            child: Text(
+              "Drinks",
+              style: Theme.of(context).textTheme.headline5,
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: List.generate(
+              drinks.length,
+              (index) {
+                int number = index + 1;
+                return Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text(
+                    '$number. ${drinks[index].name}',
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
