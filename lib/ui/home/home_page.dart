@@ -25,65 +25,145 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _refresh() async {
     setState(() {
-      _restaurants = ApiService().fetchRestaurants();
+      if (_onSearch) {
+        _search(textSearchController.text);
+      } else {
+        _restaurants = ApiService().fetchRestaurants();
+      }
     });
   }
 
-  // Future<void> _search(String query) async {
-  //   setState(() {
-  //     _searchRestaurantsResult = ApiService().searchRestaurant(query);
-  //   });
-  // }
+  Future<void> _search(String query) async {
+    setState(() {
+      _searchRestaurantsResult = ApiService().searchRestaurant(query);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder(
-        future: _restaurants,
-        builder: (context, AsyncSnapshot<RestaurantsResult> snapshot) {
-          var state = snapshot.connectionState;
-          if (state != ConnectionState.done) {
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxScrolled) => [
+          _sliverAppBar(),
+          SliverToBoxAdapter(
+            child: _searchField(),
+          )
+        ],
+        floatHeaderSlivers: true,
+        body: _onSearch ? _fetchSearchedRestaurants() : _fetchRestaurant(),
+      ),
+    );
+  }
+
+  Widget _fetchRestaurant() {
+    return FutureBuilder(
+      future: _restaurants,
+      builder: (context, AsyncSnapshot<RestaurantsResult> snapshot) {
+        var state = snapshot.connectionState;
+        if (state != ConnectionState.done) {
+          return Center(
+            child: CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.onSecondary,
+            ),
+          );
+        } else {
+          if (snapshot.hasData) {
+            var restaurants = snapshot.data?.restaurants;
+            return RefreshIndicator(
+              color: Theme.of(context).colorScheme.onSecondary,
+              onRefresh: _refresh,
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                itemBuilder: (context, index) {
+                  return InkWell(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            DetailPage(restaurantId: restaurants![index].id),
+                      ),
+                    ),
+                    child: RestaurantCard(restaurant: restaurants![index]),
+                  );
+                },
+                itemCount: restaurants!.length,
+              ),
+            );
+          } else if (snapshot.hasError) {
             return Center(
-              child: CircularProgressIndicator(
-                color: Theme.of(context).colorScheme.onSecondary,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('No Connection'),
+                  ElevatedButton(
+                      onPressed: _refresh, child: const Text('Try again'))
+                ],
               ),
             );
           } else {
-            if (snapshot.hasData) {
-              var restaurants = snapshot.data?.restaurants;
+            return const Text('');
+          }
+        }
+      },
+    );
+  }
+
+  Widget _fetchSearchedRestaurants() {
+    return FutureBuilder(
+      future: _searchRestaurantsResult,
+      builder: (context, AsyncSnapshot<SearchRestaurantsResult> snapshot) {
+        var state = snapshot.connectionState;
+        if (state != ConnectionState.done) {
+          return Center(
+            child: CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.onSecondary,
+            ),
+          );
+        } else {
+          if (snapshot.hasData) {
+            var restaurants = snapshot.data?.restaurants;
+            if (restaurants!.isEmpty) {
+              return const Center(
+                child: Text('Search result not found'),
+              );
+            } else {
               return RefreshIndicator(
                 color: Theme.of(context).colorScheme.onSecondary,
                 onRefresh: _refresh,
-                child: CustomScrollView(
-                  slivers: <Widget>[
-                    _sliverAppBar(),
-                    SliverToBoxAdapter(
-                      child: _searchField(),
-                    ),
-                    if (!_onSearch)
-                      SliverList(
-                        delegate: _sliverChildBuilderDelegate(restaurants!),
+                child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  itemBuilder: (context, index) {
+                    return InkWell(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              DetailPage(restaurantId: restaurants[index].id),
+                        ),
                       ),
-                  ],
+                      child: RestaurantCard(restaurant: restaurants[index]),
+                    );
+                  },
+                  itemCount: restaurants.length,
                 ),
               );
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('No Connection'),
-                    ElevatedButton(
-                        onPressed: _refresh, child: const Text('Try again'))
-                  ],
-                ),
-              );
-            } else {
-              return const Text('');
             }
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('No Connection'),
+                  ElevatedButton(
+                      onPressed: _refresh, child: const Text('Try again'))
+                ],
+              ),
+            );
+          } else {
+            return const Center(child: Text(''));
           }
-        },
-      ),
+        }
+      },
     );
   }
 
@@ -122,34 +202,23 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Find Restaurant",
-            style: Theme.of(context).textTheme.caption!.copyWith(
-                  fontSize: 16,
-                ),
-          ),
-          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
                 flex: 7,
                 child: TextFormField(
                   controller: textSearchController,
-                  // onTap: () {
-                  //   setState(() {
-                  //     _onSearch = true;
-                  //   });
-                  // },
-                  onFieldSubmitted: (value) {},
-                  onChanged: (value) {
+                  onFieldSubmitted: (value) {
                     setState(() {
-                      if (value == '') {
-                        _onSearch = false;
-                      } else {
-                        _onSearch = true;
-                      }
-                      // _onSearch = false;
+                      _search(value);
                     });
+                  },
+                  onChanged: (value) {
+                    if (value.isNotEmpty) {
+                      _onSearch = true;
+                    } else {
+                      _onSearch = false;
+                    }
                   },
                   decoration: const InputDecoration(
                     prefixIcon: Icon(
@@ -163,7 +232,11 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                 flex: 3,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      _search(textSearchController.text);
+                    });
+                  },
                   child: const Text(
                     'Search',
                   ),

@@ -37,11 +37,16 @@ class _DetailPageState extends State<DetailPage> {
         builder: (context, AsyncSnapshot<DetailRestaurantsResult> snapshot) {
           var state = snapshot.connectionState;
           if (state != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.onSecondary,
+              ),
+            );
           } else {
             if (snapshot.hasData) {
               var restaurant = snapshot.data?.detailRestaurant;
               return RefreshIndicator(
+                  color: Theme.of(context).colorScheme.onSecondary,
                   onRefresh: _refresh,
                   child: SingleChildScrollView(
                     child: SafeArea(
@@ -78,7 +83,16 @@ class _DetailPageState extends State<DetailPage> {
                     ),
                   ));
             } else if (snapshot.hasError) {
-              return Center(child: Text(snapshot.error.toString()));
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('No Connection'),
+                    ElevatedButton(
+                        onPressed: _refresh, child: const Text('Try again'))
+                  ],
+                ),
+              );
             } else {
               return const Text('');
             }
@@ -94,7 +108,7 @@ class _DetailPageState extends State<DetailPage> {
         Hero(
           tag: pictureId,
           child: Image.network(
-            'https://restaurant-api.dicoding.dev/images/medium/$pictureId',
+            '${ApiService.basePictureUrl}$pictureId',
           ),
         ),
         Padding(
@@ -110,7 +124,6 @@ class _DetailPageState extends State<DetailPage> {
               icon: Icon(
                 Icons.arrow_back,
                 color: Theme.of(context).colorScheme.primary,
-                // size: 32,
               ),
               onPressed: () => Navigator.pop(context),
             ),
