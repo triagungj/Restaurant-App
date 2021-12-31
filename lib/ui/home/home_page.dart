@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:restaurant_app/data/api/api_service.dart';
 import 'package:restaurant_app/data/model/restaurant_result.dart';
 import 'package:restaurant_app/ui/detail/detail_page.dart';
+import 'package:restaurant_app/ui/favorite/favorite_page.dart';
 import 'package:restaurant_app/widgets/restaurant_card.dart';
 
 class HomePage extends StatefulWidget {
@@ -175,7 +176,7 @@ class _HomePageState extends State<HomePage> {
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
           'RESTAURANT APP',
-          style: Theme.of(context).textTheme.caption!.copyWith(
+          style: Theme.of(context).textTheme.headline4!.copyWith(
                 fontSize: 20,
                 color: Theme.of(context).colorScheme.onPrimary,
               ),
@@ -190,7 +191,12 @@ class _HomePageState extends State<HomePage> {
             Icons.favorite,
           ),
           tooltip: 'Your Favorite',
-          onPressed: () {},
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) => const FavoritePage(),
+            ),
+          ),
         ),
       ],
     );
@@ -249,22 +255,22 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  SliverChildBuilderDelegate _sliverChildBuilderDelegate(
-      List<Restaurant> restaurants) {
-    return SliverChildBuilderDelegate(
-      (BuildContext context, int index) {
-        return InkWell(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  DetailPage(restaurantId: restaurants[index].id),
-            ),
-          ),
-          child: RestaurantCard(restaurant: restaurants[index]),
-        );
-      },
-      childCount: restaurants.length,
-    );
-  }
+  // SliverChildBuilderDelegate _sliverChildBuilderDelegate(
+  //     List<Restaurant> restaurants) {
+  //   return SliverChildBuilderDelegate(
+  //     (BuildContext context, int index) {
+  //       return InkWell(
+  //         onTap: () => Navigator.push(
+  //           context,
+  //           MaterialPageRoute(
+  //             builder: (BuildContext context) =>
+  //                 DetailPage(restaurantId: restaurants[index].id),
+  //           ),
+  //         ),
+  //         child: RestaurantCard(restaurant: restaurants[index]),
+  //       );
+  //     },
+  //     childCount: restaurants.length,
+  //   );
+  // }
 }
