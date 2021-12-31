@@ -3,16 +3,22 @@ import 'package:restaurant_app/data/api/api_service.dart';
 import 'package:restaurant_app/data/model/restaurant_result.dart';
 
 class RestaurantCard extends StatefulWidget {
-  const RestaurantCard({Key? key, required this.restaurant}) : super(key: key);
+  const RestaurantCard(
+      {Key? key,
+      required this.restaurant,
+      required this.onFavorite,
+      required this.isFavorite})
+      : super(key: key);
 
   final Restaurant restaurant;
+  final Function() onFavorite;
+  final bool isFavorite;
 
   @override
   State<RestaurantCard> createState() => _RestaurantCardState();
 }
 
 class _RestaurantCardState extends State<RestaurantCard> {
-  bool isFavorite = false;
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -125,27 +131,11 @@ class _RestaurantCardState extends State<RestaurantCard> {
             child: Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: IconButton(
-                icon: Icon(isFavorite
+                icon: Icon(widget.isFavorite
                     ? Icons.favorite_outlined
                     : Icons.favorite_outline),
                 padding: EdgeInsets.zero,
-                onPressed: () {
-                  setState(() {
-                    if (isFavorite) {
-                      isFavorite = false;
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        duration: Duration(seconds: 1),
-                        content: Text("Removed from Favorite"),
-                      ));
-                    } else {
-                      isFavorite = true;
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text("Added to Favorite"),
-                        duration: Duration(seconds: 1),
-                      ));
-                    }
-                  });
-                },
+                onPressed: widget.onFavorite,
               ),
             ),
           ),
