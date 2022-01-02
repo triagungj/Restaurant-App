@@ -26,22 +26,6 @@ class _HomePageState extends State<HomePage> {
     _refresh();
   }
 
-  Future<void> _refresh() async {
-    setState(() {
-      if (_onSearch) {
-        _search(textSearchController.text);
-      } else {
-        _restaurants = ApiService().fetchRestaurants();
-      }
-    });
-  }
-
-  Future<void> _search(String query) async {
-    setState(() {
-      _searchRestaurantsResult = ApiService().searchRestaurant(query);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,38 +42,54 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _fetchRestaurant() {
-    return FutureBuilder(
-      future: _restaurants,
-      builder: (context, AsyncSnapshot<RestaurantsResult> snapshot) {
-        var state = snapshot.connectionState;
-        if (state != ConnectionState.done) {
-          return Center(
-            child: CircularProgressIndicator(
-              color: Theme.of(context).colorScheme.onSecondary,
-            ),
-          );
-        } else {
-          if (snapshot.hasData) {
-            var restaurants = snapshot.data?.restaurants;
-            return _loadData(restaurants);
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('No Connection'),
-                  ElevatedButton(
-                      onPressed: _refresh, child: const Text('Try again'))
-                ],
+  SliverAppBar _sliverAppBar() {
+    return SliverAppBar(
+      pinned: false,
+      snap: true,
+      floating: true,
+      flexibleSpace: FlexibleSpaceBar(
+        title: Text(
+          'RESTAURANT APP',
+          style: Theme.of(context).textTheme.headline4!.copyWith(
+                fontSize: 20,
+                color: Theme.of(context).colorScheme.onPrimary,
               ),
-            );
-          } else {
-            return const Text('');
-          }
-        }
-      },
+        ),
+      ),
+      leading: const Icon(
+        Icons.menu,
+      ),
+      actions: <Widget>[
+        IconButton(
+          icon: const Icon(
+            Icons.favorite,
+          ),
+          tooltip: 'Your Favorite',
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) => const FavoritePage(),
+            ),
+          ),
+        ),
+      ],
     );
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      if (_onSearch) {
+        _search(textSearchController.text);
+      } else {
+        _restaurants = ApiService().fetchRestaurants();
+      }
+    });
+  }
+
+  Future<void> _search(String query) async {
+    setState(() {
+      _searchRestaurantsResult = ApiService().searchRestaurant(query);
+    });
   }
 
   Widget _loadData(List<Restaurant>? restaurants) {
@@ -144,6 +144,40 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _fetchRestaurant() {
+    return FutureBuilder(
+      future: _restaurants,
+      builder: (context, AsyncSnapshot<RestaurantsResult> snapshot) {
+        var state = snapshot.connectionState;
+        if (state != ConnectionState.done) {
+          return Center(
+            child: CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.onSecondary,
+            ),
+          );
+        } else {
+          if (snapshot.hasData) {
+            var restaurants = snapshot.data?.restaurants;
+            return _loadData(restaurants);
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('No Connection'),
+                  ElevatedButton(
+                      onPressed: _refresh, child: const Text('Try again'))
+                ],
+              ),
+            );
+          } else {
+            return const Text('');
+          }
+        }
+      },
+    );
+  }
+
   Widget _fetchSearchedRestaurants() {
     return FutureBuilder(
       future: _searchRestaurantsResult,
@@ -181,40 +215,6 @@ class _HomePageState extends State<HomePage> {
           }
         }
       },
-    );
-  }
-
-  SliverAppBar _sliverAppBar() {
-    return SliverAppBar(
-      pinned: false,
-      snap: true,
-      floating: true,
-      flexibleSpace: FlexibleSpaceBar(
-        title: Text(
-          'RESTAURANT APP',
-          style: Theme.of(context).textTheme.headline4!.copyWith(
-                fontSize: 20,
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
-        ),
-      ),
-      leading: const Icon(
-        Icons.menu,
-      ),
-      actions: <Widget>[
-        IconButton(
-          icon: const Icon(
-            Icons.favorite,
-          ),
-          tooltip: 'Your Favorite',
-          onPressed: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (BuildContext context) => const FavoritePage(),
-            ),
-          ),
-        ),
-      ],
     );
   }
 

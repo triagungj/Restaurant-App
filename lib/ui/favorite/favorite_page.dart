@@ -20,6 +20,14 @@ class _FavoritePageState extends State<FavoritePage> {
       ),
       body: Consumer<FavoriteProvider>(
           builder: (context, FavoriteProvider data, widget) {
+        if (data.favoriteRestaurants.isEmpty) {
+          return const Center(
+            child: Text(
+              'No Favorite Restaurant were added.',
+              style: TextStyle(fontSize: 18),
+            ),
+          );
+        }
         return ListView.builder(
           padding: EdgeInsets.zero,
           itemBuilder: (context, index) {
