@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:restaurant_app/data/api/api_service.dart';
+import 'package:restaurant_app/data/api/favorite_provider.dart';
 import 'package:restaurant_app/data/model/detail_restaurant_result.dart';
+import 'package:restaurant_app/data/model/restaurant_result.dart';
 
 class DetailPage extends StatefulWidget {
   const DetailPage({
@@ -46,48 +49,101 @@ class _DetailPageState extends State<DetailPage> {
             if (snapshot.hasData) {
               var restaurant = snapshot.data?.detailRestaurant;
               return RefreshIndicator(
-                  color: Theme.of(context).colorScheme.onSecondary,
-                  onRefresh: _refresh,
-                  child: SingleChildScrollView(
-                    child: SafeArea(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _detailPicture(restaurant!.pictureId),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _detailRestaurantName(restaurant.name),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    _detailRating(restaurant.rating),
-                                    const SizedBox(width: 15),
-                                    _detailCity(restaurant.city),
-                                  ],
-                                ),
-                                _detailDeskripsi(restaurant.description),
-                                if (restaurant.menus.foods.isNotEmpty)
-                                  _detailFood(restaurant.menus.foods),
-                                const SizedBox(height: 18),
-                                if (restaurant.menus.drinks.isNotEmpty)
-                                  _detailDrinks(restaurant.menus.drinks),
-                              ],
-                            ),
+                color: Theme.of(context).colorScheme.onSecondary,
+                onRefresh: _refresh,
+                child: SingleChildScrollView(
+                  child: SafeArea(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _detailPicture(restaurant!.pictureId),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _detailRestaurantName(restaurant.name),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      _detailRating(restaurant.rating),
+                                      const SizedBox(width: 15),
+                                      _detailCity(restaurant.city),
+                                    ],
+                                  ),
+                                  Consumer<FavoriteProvider>(builder:
+                                      (context, FavoriteProvider data, widget) {
+                                    bool isAdded = data.favoriteRestaurants
+                                        .map((item) => item.id)
+                                        .contains(restaurant.id);
+                                    return IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          if (!isAdded) {
+                                            data.favorite(
+                                              Restaurant(
+                                                  id: restaurant.id,
+                                                  name: restaurant.name,
+                                                  city: restaurant.city,
+                                                  description:
+                                                      restaurant.description,
+                                                  pictureId:
+                                                      restaurant.pictureId,
+                                                  rating: restaurant.rating),
+                                            );
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(const SnackBar(
+                                              duration: Duration(seconds: 1),
+                                              content:
+                                                  Text("Added from Favorite"),
+                                            ));
+                                          } else {
+                                            data.removeFavorite(restaurant.id);
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(const SnackBar(
+                                              content:
+                                                  Text("Removed to Favorite"),
+                                              duration: Duration(seconds: 1),
+                                            ));
+                                          }
+                                        });
+                                      },
+                                      icon: Icon(
+                                        isAdded
+                                            ? Icons.favorite_outlined
+                                            : Icons.favorite_outline,
+                                        size: 32,
+                                      ),
+                                    );
+                                  })
+                                ],
+                              ),
+                              _detailDeskripsi(restaurant.description),
+                              if (restaurant.menus.foods.isNotEmpty)
+                                _detailFood(restaurant.menus.foods),
+                              const SizedBox(height: 18),
+                              if (restaurant.menus.drinks.isNotEmpty)
+                                _detailDrinks(restaurant.menus.drinks),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ));
+                  ),
+                ),
+              );
             } else if (snapshot.hasError) {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('No Connection'),
+                    const Text('No Internet Connection'),
+                    const SizedBox(height: 10),
                     ElevatedButton(
                         onPressed: _refresh, child: const Text('Try again'))
                   ],
@@ -168,6 +224,7 @@ class _DetailPageState extends State<DetailPage> {
     );
   }
 
+  // Widget _detailFavorite
   Widget _detailCity(String city) {
     return Row(
       children: [

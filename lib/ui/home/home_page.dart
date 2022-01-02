@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:restaurant_app/data/api/api_service.dart';
+import 'package:restaurant_app/data/api/favorite_provider.dart';
 import 'package:restaurant_app/data/model/restaurant_result.dart';
 import 'package:restaurant_app/ui/detail/detail_page.dart';
+import 'package:restaurant_app/ui/favorite/favorite_page.dart';
 import 'package:restaurant_app/widgets/restaurant_card.dart';
 
 class HomePage extends StatefulWidget {
@@ -23,22 +26,6 @@ class _HomePageState extends State<HomePage> {
     _refresh();
   }
 
-  Future<void> _refresh() async {
-    setState(() {
-      if (_onSearch) {
-        _search(textSearchController.text);
-      } else {
-        _restaurants = ApiService().fetchRestaurants();
-      }
-    });
-  }
-
-  Future<void> _search(String query) async {
-    setState(() {
-      _searchRestaurantsResult = ApiService().searchRestaurant(query);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,6 +38,106 @@ class _HomePageState extends State<HomePage> {
         ],
         floatHeaderSlivers: true,
         body: _onSearch ? _fetchSearchedRestaurants() : _fetchRestaurant(),
+      ),
+    );
+  }
+
+  SliverAppBar _sliverAppBar() {
+    return SliverAppBar(
+      pinned: false,
+      snap: true,
+      floating: true,
+      flexibleSpace: FlexibleSpaceBar(
+        title: Text(
+          'RESTAURANT APP',
+          style: Theme.of(context).textTheme.headline4!.copyWith(
+                fontSize: 20,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+        ),
+      ),
+      leading: const Icon(
+        Icons.menu,
+      ),
+      actions: <Widget>[
+        IconButton(
+          icon: const Icon(
+            Icons.favorite,
+          ),
+          tooltip: 'Your Favorite',
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) => const FavoritePage(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      _restaurants = ApiService().fetchRestaurants();
+      _onSearch = false;
+      textSearchController.clear();
+    });
+  }
+
+  Future<void> _search(String query) async {
+    setState(() {
+      _searchRestaurantsResult = ApiService().searchRestaurant(query);
+    });
+  }
+
+  Widget _loadData(List<Restaurant>? restaurants) {
+    return RefreshIndicator(
+      color: Theme.of(context).colorScheme.onSecondary,
+      onRefresh: _refresh,
+      child: ListView.builder(
+        padding: EdgeInsets.zero,
+        itemBuilder: (context, index) {
+          return InkWell(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) =>
+                    DetailPage(restaurantId: restaurants![index].id),
+              ),
+            ),
+            child: Consumer<FavoriteProvider>(
+              builder: (context, FavoriteProvider data, widget) {
+                bool isAdded = data.favoriteRestaurants
+                    .map((item) => item.id)
+                    .contains(restaurants![index].id);
+                return RestaurantCard(
+                  restaurant: restaurants[index],
+                  isFavorite: isAdded,
+                  onFavorite: () {
+                    setState(() {
+                      if (!isAdded) {
+                        data.favorite(restaurants[index]);
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          duration: Duration(seconds: 1),
+                          content: Text("Added from Favorite"),
+                        ));
+                      } else {
+                        data.removeFavorite(restaurants[index].id);
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content: Text("Removed to Favorite"),
+                          duration: Duration(seconds: 1),
+                        ));
+                      }
+                    });
+                  },
+                );
+              },
+            ),
+          );
+        },
+        itemCount: restaurants!.length,
       ),
     );
   }
@@ -69,26 +156,7 @@ class _HomePageState extends State<HomePage> {
         } else {
           if (snapshot.hasData) {
             var restaurants = snapshot.data?.restaurants;
-            return RefreshIndicator(
-              color: Theme.of(context).colorScheme.onSecondary,
-              onRefresh: _refresh,
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemBuilder: (context, index) {
-                  return InkWell(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (BuildContext context) =>
-                            DetailPage(restaurantId: restaurants![index].id),
-                      ),
-                    ),
-                    child: RestaurantCard(restaurant: restaurants![index]),
-                  );
-                },
-                itemCount: restaurants!.length,
-              ),
-            );
+            return _loadData(restaurants);
           } else if (snapshot.hasError) {
             return Center(
               child: Column(
@@ -127,26 +195,7 @@ class _HomePageState extends State<HomePage> {
                 child: Text('Search result not found'),
               );
             } else {
-              return RefreshIndicator(
-                color: Theme.of(context).colorScheme.onSecondary,
-                onRefresh: _refresh,
-                child: ListView.builder(
-                  padding: EdgeInsets.zero,
-                  itemBuilder: (context, index) {
-                    return InkWell(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              DetailPage(restaurantId: restaurants[index].id),
-                        ),
-                      ),
-                      child: RestaurantCard(restaurant: restaurants[index]),
-                    );
-                  },
-                  itemCount: restaurants.length,
-                ),
-              );
+              return _loadData(restaurants);
             }
           } else if (snapshot.hasError) {
             return Center(
@@ -167,35 +216,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  SliverAppBar _sliverAppBar() {
-    return SliverAppBar(
-      pinned: false,
-      snap: true,
-      floating: true,
-      flexibleSpace: FlexibleSpaceBar(
-        title: Text(
-          'RESTAURANT APP',
-          style: Theme.of(context).textTheme.caption!.copyWith(
-                fontSize: 20,
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
-        ),
-      ),
-      leading: const Icon(
-        Icons.menu,
-      ),
-      actions: <Widget>[
-        IconButton(
-          icon: const Icon(
-            Icons.favorite,
-          ),
-          tooltip: 'Your Favorite',
-          onPressed: () {},
-        ),
-      ],
-    );
-  }
-
   Widget _searchField() {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
@@ -210,13 +230,16 @@ class _HomePageState extends State<HomePage> {
                   controller: textSearchController,
                   onFieldSubmitted: (value) {
                     setState(() {
-                      _search(value);
+                      if (value.isNotEmpty) {
+                        _search(value);
+                        _onSearch = true;
+                      } else {
+                        _onSearch = false;
+                      }
                     });
                   },
                   onChanged: (value) {
-                    if (value.isNotEmpty) {
-                      _onSearch = true;
-                    } else {
+                    if (value.isEmpty) {
                       _onSearch = false;
                     }
                   },
@@ -234,7 +257,10 @@ class _HomePageState extends State<HomePage> {
                 child: ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      _search(textSearchController.text);
+                      if (textSearchController.text.isNotEmpty) {
+                        _onSearch = true;
+                        _search(textSearchController.text);
+                      }
                     });
                   },
                   child: const Text(
@@ -246,25 +272,6 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-    );
-  }
-
-  SliverChildBuilderDelegate _sliverChildBuilderDelegate(
-      List<Restaurant> restaurants) {
-    return SliverChildBuilderDelegate(
-      (BuildContext context, int index) {
-        return InkWell(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  DetailPage(restaurantId: restaurants[index].id),
-            ),
-          ),
-          child: RestaurantCard(restaurant: restaurants[index]),
-        );
-      },
-      childCount: restaurants.length,
     );
   }
 }
