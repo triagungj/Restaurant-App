@@ -53,7 +53,7 @@ class _FavoritePageState extends State<FavoritePage> {
                         content: Text("Added from Favorite"),
                       ));
                     } else {
-                      data.removeFavorite(data.favoriteRestaurants[index]);
+                      data.removeFavorite(data.favoriteRestaurants[index].id);
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content: Text("Removed to Favorite"),
                         duration: Duration(seconds: 1),

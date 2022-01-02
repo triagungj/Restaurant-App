@@ -12,9 +12,8 @@ class FavoriteProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void removeFavorite(Restaurant restaurant) {
-    _favoriteRestaurants
-        .removeWhere((element) => (element.id == restaurant.id));
+  void removeFavorite(String restaurantId) {
+    _favoriteRestaurants.removeWhere((element) => (element.id == restaurantId));
     notifyListeners();
   }
 }
