@@ -78,11 +78,9 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _refresh() async {
     setState(() {
-      if (_onSearch) {
-        _search(textSearchController.text);
-      } else {
-        _restaurants = ApiService().fetchRestaurants();
-      }
+      _restaurants = ApiService().fetchRestaurants();
+      _onSearch = false;
+      textSearchController.clear();
     });
   }
 
