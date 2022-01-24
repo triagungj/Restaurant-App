@@ -1,32 +1,21 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:restaurant_app/common/styles.dart';
-import 'package:restaurant_app/data/api/favorite_provider.dart';
-import 'package:restaurant_app/ui/home/home_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:restaurant_app/presentation/app/app.dart';
+import 'package:restaurant_app/presentation/app/app_bloc_observer.dart';
 
 void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => FavoriteProvider(),
-      child: MaterialApp(
-        title: 'Restaurant App',
-        theme: ThemeData(
-          colorScheme: myColorSchemeLight,
-          textTheme: myTextTheme,
-        ),
-        darkTheme: ThemeData(
-          colorScheme: myColorSchemeDark,
-          textTheme: myTextTheme,
-        ),
-        home: const HomePage(),
-      ),
-    );
-  }
+  runZonedGuarded(
+    () async {
+      BlocOverrides.runZoned(
+        () => runApp(const App()),
+        blocObserver: AppBlocObserver(),
+      );
+    },
+    (error, stackTrace) {
+      log(error.toString(), stackTrace: stackTrace);
+    },
+  );
 }

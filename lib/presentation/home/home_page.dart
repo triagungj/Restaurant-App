@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:provider/provider.dart';
+import 'package:restaurant_app/core/utils/ui/widgets/restaurant_card.dart';
 import 'package:restaurant_app/data/api/api_service.dart';
 import 'package:restaurant_app/data/api/favorite_provider.dart';
 import 'package:restaurant_app/data/model/restaurant_result.dart';
-import 'package:restaurant_app/ui/detail/detail_page.dart';
-import 'package:restaurant_app/ui/favorite/favorite_page.dart';
-import 'package:restaurant_app/widgets/restaurant_card.dart';
+import 'package:restaurant_app/presentation/auth/pages/login_page.dart';
+import 'package:restaurant_app/presentation/detail/detail_page.dart';
+import 'package:restaurant_app/presentation/favorite/favorite_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -19,6 +22,21 @@ class _HomePageState extends State<HomePage> {
   late Future<SearchRestaurantsResult> _searchRestaurantsResult;
   TextEditingController textSearchController = TextEditingController();
   bool _onSearch = false;
+
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  Future<void> _logout() async {
+    Loader.show(context, progressIndicator: const LinearProgressIndicator());
+    final SharedPreferences prefs = await _prefs;
+    prefs.setBool("login", false);
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (BuildContext context) => const LoginPage()));
+      Loader.hide();
+    });
+  }
 
   @override
   void initState() {
@@ -56,8 +74,11 @@ class _HomePageState extends State<HomePage> {
               ),
         ),
       ),
-      leading: const Icon(
-        Icons.menu,
+      leading: IconButton(
+        onPressed: _logout,
+        icon: const Icon(
+          Icons.menu,
+        ),
       ),
       actions: <Widget>[
         IconButton(
