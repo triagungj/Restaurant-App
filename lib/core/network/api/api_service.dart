@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:restaurant_app/data/model/detail_restaurant_result.dart';
-import 'package:restaurant_app/data/model/restaurant_result.dart';
+import 'package:restaurant_app/core/network/model/detail_restaurant_result.dart';
+import 'package:restaurant_app/core/network/model/restaurant_result.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:restaurant_app/data/api/api_service.dart';
-import 'package:restaurant_app/data/api/favorite_provider.dart';
-import 'package:restaurant_app/data/model/detail_restaurant_result.dart';
-import 'package:restaurant_app/data/model/restaurant_result.dart';
+import 'package:restaurant_app/core/network/api/api_service.dart';
+import 'package:restaurant_app/core/network/api/favorite_provider.dart';
+import 'package:restaurant_app/core/network/model/detail_restaurant_result.dart';
+import 'package:restaurant_app/core/network/model/restaurant_result.dart';
 
 class DetailPage extends StatefulWidget {
   const DetailPage({

@@ -10,19 +10,23 @@ class LoginHead extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const <Widget>[
+        children: <Widget>[
           Text(
             "Login",
             style: TextStyle(
-                color: Colors.white, fontSize: 48, fontWeight: FontWeight.bold),
+                color: Theme.of(context).colorScheme.onSecondary,
+                fontSize: 48,
+                fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 6),
-          Text("And Find Restaurants",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w300,
-                fontSize: 24,
-              ))
+          const SizedBox(height: 6),
+          Text(
+            "And Find Restaurants",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSecondary,
+              fontWeight: FontWeight.w300,
+              fontSize: 24,
+            ),
+          ),
         ],
       ),
     );

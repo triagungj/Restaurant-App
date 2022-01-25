@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
 import 'package:provider/provider.dart';
+import 'package:restaurant_app/core/di/injection.dart';
+import 'package:restaurant_app/core/utils/services/shared_prefs.dart';
 import 'package:restaurant_app/core/utils/ui/widgets/restaurant_card.dart';
-import 'package:restaurant_app/data/api/api_service.dart';
-import 'package:restaurant_app/data/api/favorite_provider.dart';
-import 'package:restaurant_app/data/model/restaurant_result.dart';
+import 'package:restaurant_app/core/network/api/api_service.dart';
+import 'package:restaurant_app/core/network/api/favorite_provider.dart';
+import 'package:restaurant_app/core/network/model/restaurant_result.dart';
 import 'package:restaurant_app/presentation/auth/pages/login_page.dart';
 import 'package:restaurant_app/presentation/detail/detail_page.dart';
 import 'package:restaurant_app/presentation/favorite/favorite_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -23,12 +24,11 @@ class _HomePageState extends State<HomePage> {
   TextEditingController textSearchController = TextEditingController();
   bool _onSearch = false;
 
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  final sharedPref = sl<SharedPrefs>();
 
   Future<void> _logout() async {
     Loader.show(context, progressIndicator: const LinearProgressIndicator());
-    final SharedPreferences prefs = await _prefs;
-    prefs.setBool("login", false);
+    await sharedPref.clearAll();
     Future.delayed(const Duration(milliseconds: 2000), () {
       Navigator.pushReplacement(
           context,
@@ -76,14 +76,16 @@ class _HomePageState extends State<HomePage> {
       ),
       leading: IconButton(
         onPressed: _logout,
-        icon: const Icon(
+        icon: Icon(
           Icons.menu,
+          color: Theme.of(context).colorScheme.onPrimary,
         ),
       ),
       actions: <Widget>[
         IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.favorite,
+            color: Theme.of(context).colorScheme.onPrimary,
           ),
           tooltip: 'Your Favorite',
           onPressed: () => Navigator.push(
@@ -138,18 +140,30 @@ class _HomePageState extends State<HomePage> {
                     setState(() {
                       if (!isAdded) {
                         data.favorite(restaurants[index]);
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(const SnackBar(
-                          duration: Duration(seconds: 1),
-                          content: Text("Added from Favorite"),
-                        ));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            duration: const Duration(seconds: 1),
+                            content: Text(
+                              "Added to Favorite",
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                            ),
+                          ),
+                        );
                       } else {
                         data.removeFavorite(restaurants[index].id);
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(const SnackBar(
-                          content: Text("Removed to Favorite"),
-                          duration: Duration(seconds: 1),
-                        ));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            duration: const Duration(seconds: 1),
+                            content: Text(
+                              "Removed from Favorite",
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onPrimary,
+                              ),
+                            ),
+                          ),
+                        );
                       }
                     });
                   },

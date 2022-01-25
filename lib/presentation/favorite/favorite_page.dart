@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:restaurant_app/core/utils/ui/widgets/restaurant_card.dart';
-import 'package:restaurant_app/data/api/favorite_provider.dart';
+import 'package:restaurant_app/core/network/api/favorite_provider.dart';
 import 'package:restaurant_app/presentation/detail/detail_page.dart';
 
 class FavoritePage extends StatefulWidget {

@@ -5,15 +5,13 @@ class LoginForm extends StatelessWidget {
     Key? key,
     required this.usernameController,
     required this.passwordController,
-    required this.setLogin,
-    required this.getLogin,
+    required this.onLogin,
     required this.formKey,
   }) : super(key: key);
   final GlobalKey<FormState> formKey;
   final TextEditingController usernameController;
   final TextEditingController passwordController;
-  final Function() setLogin;
-  final Function() getLogin;
+  final Function()? onLogin;
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +30,9 @@ class LoginForm extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               TextFormField(
+                controller: usernameController,
                 keyboardType: TextInputType.name,
-                style: TextStyle(color: Theme.of(context).primaryColor),
-                cursorColor: Theme.of(context).primaryColor,
+                style: const TextStyle(color: Colors.black87),
                 decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
@@ -48,21 +46,12 @@ class LoginForm extends StatelessWidget {
                       Icons.account_box,
                       color: Color(0xFF000000),
                     )),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return "* Required";
-                  } else if (value.length < 6) {
-                    return "Username should be atleast 6 characters";
-                  } else if (value.length > 24) {
-                    return "Username should not be greater than 24";
-                  }
-                },
               ),
               const SizedBox(height: 12),
               TextFormField(
+                controller: passwordController,
                 obscureText: true,
-                style: TextStyle(color: Theme.of(context).primaryColor),
-                cursorColor: Theme.of(context).primaryColor,
+                style: const TextStyle(color: Colors.black87),
                 decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8.0),
@@ -76,27 +65,13 @@ class LoginForm extends StatelessWidget {
                       Icons.password,
                       color: Color(0xFF000000),
                     )),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return "* Required";
-                  } else if (value.length < 6) {
-                    return "Password should be atleast 6 characters";
-                  } else if (value.length > 24) {
-                    return "Password should not be greater than 24";
-                  }
-                },
               ),
               const SizedBox(height: 12),
               SizedBox(
                 height: 48,
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      setLogin();
-                      getLogin();
-                    }
-                  },
+                  onPressed: onLogin,
                   child: const Text("Log In", style: TextStyle(fontSize: 18)),
                 ),
               ),

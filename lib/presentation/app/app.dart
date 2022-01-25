@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:restaurant_app/core/configs/theme/styles.dart';
-import 'package:restaurant_app/data/api/favorite_provider.dart';
+import 'package:restaurant_app/core/network/api/favorite_provider.dart';
 import 'package:restaurant_app/presentation/auth/pages/login_page.dart';
 
 class App extends StatelessWidget {

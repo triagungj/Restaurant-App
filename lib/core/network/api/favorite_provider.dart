@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:restaurant_app/data/model/restaurant_result.dart';
+import 'package:restaurant_app/core/network/model/restaurant_result.dart';
 
 class FavoriteProvider extends ChangeNotifier {
   final List<Restaurant> _favoriteRestaurants = [];
