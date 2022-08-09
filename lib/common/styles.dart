@@ -31,10 +31,8 @@ final TextTheme myTextTheme = TextTheme(
 const ColorScheme myColorSchemeDark = ColorScheme.dark(
   primary: Color(0xff8c0000),
   onPrimary: Color(0xfffaf2f2),
-  primaryVariant: Color(0xff0d0e1a),
   secondary: Color(0xfff20f28),
   onSecondary: Color(0xffffffff),
-  secondaryVariant: Color(0xff750404),
   surface: Color(0xFF451d1d),
   onSurface: Color(0xffdedede),
   background: Color(0xffe8c5c5),
@@ -47,10 +45,8 @@ const ColorScheme myColorSchemeDark = ColorScheme.dark(
 const ColorScheme myColorSchemeLight = ColorScheme.light(
   primary: Color(0xffb51f1f),
   onPrimary: Color(0xffffffff),
-  primaryVariant: Color(0xff8c0000),
   secondary: Color(0xffffffff),
   onSecondary: Color(0xff8c0000),
-  secondaryVariant: Color(0xffffffff),
   surface: Color(0xFFede8e8),
   onSurface: Colors.black87,
   background: Color(0xffe8c5c5),
