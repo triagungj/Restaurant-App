@@ -2,23 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:restaurant_app/data/api/api_service.dart';
 import 'package:restaurant_app/data/model/restaurant_result.dart';
 
-class RestaurantCard extends StatefulWidget {
-  const RestaurantCard(
-      {Key? key,
-      required this.restaurant,
-      required this.onFavorite,
-      required this.isFavorite})
-      : super(key: key);
+class RestaurantCard extends StatelessWidget {
+  const RestaurantCard({
+    Key? key,
+    required this.restaurant,
+    required this.onFavorite,
+    required this.isFavorite,
+  }) : super(key: key);
 
   final Restaurant restaurant;
   final Function() onFavorite;
   final bool isFavorite;
 
-  @override
-  State<RestaurantCard> createState() => _RestaurantCardState();
-}
-
-class _RestaurantCardState extends State<RestaurantCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -47,9 +42,9 @@ class _RestaurantCardState extends State<RestaurantCard> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
                       child: Hero(
-                        tag: widget.restaurant.pictureId!,
+                        tag: restaurant.pictureId!,
                         child: Image.network(
-                          '${ApiService.basePictureUrl}${widget.restaurant.pictureId!}',
+                          '${ApiService.basePictureUrl}${restaurant.pictureId!}',
                           fit: BoxFit.fill,
                           height: 120,
                         ),
@@ -67,7 +62,7 @@ class _RestaurantCardState extends State<RestaurantCard> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          widget.restaurant.name,
+                          restaurant.name,
                           style: Theme.of(context)
                               .textTheme
                               .headline5!
@@ -77,7 +72,7 @@ class _RestaurantCardState extends State<RestaurantCard> {
                               ),
                         ),
                         Text(
-                          widget.restaurant.description!,
+                          restaurant.description!,
                           style:
                               Theme.of(context).textTheme.subtitle1!.copyWith(
                                     fontStyle: FontStyle.italic,
@@ -98,7 +93,7 @@ class _RestaurantCardState extends State<RestaurantCard> {
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  widget.restaurant.city!,
+                                  restaurant.city!,
                                   style: Theme.of(context).textTheme.subtitle2,
                                 ),
                               ],
@@ -112,7 +107,7 @@ class _RestaurantCardState extends State<RestaurantCard> {
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  "${widget.restaurant.rating} / 5",
+                                  "${restaurant.rating} / 5",
                                   style: Theme.of(context).textTheme.subtitle2,
                                 ),
                               ],
@@ -131,11 +126,11 @@ class _RestaurantCardState extends State<RestaurantCard> {
             child: Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: IconButton(
-                icon: Icon(widget.isFavorite
+                icon: Icon(isFavorite
                     ? Icons.favorite_outlined
                     : Icons.favorite_outline),
                 padding: EdgeInsets.zero,
-                onPressed: widget.onFavorite,
+                onPressed: onFavorite,
               ),
             ),
           ),
